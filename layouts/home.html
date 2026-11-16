@@ -1,12 +1,29 @@
-{{- /* The front page: every post, newest first. The title and the line under
-       it come from content/_index.md. */ -}}
+{{- /* The front page: every post, newest first, the newest across the whole
+       grid. The title and the line under it come from content/_index.md. */ -}}
 {{ define "main" }}
-  <a class="back" href="{{ site.Params.mainSite }}">&larr; Gears &amp; Trees</a>
-
-  <header class="intro">
-    <h1>{{ .Title }}</h1>
-    {{ .Content }}
+  <header class="container page-head">
+    <p class="eyebrow">Gears &amp; Trees</p>
+    <h1 class="page-title reveal">{{ .Title }}</h1>
+    <div class="page-lede">{{ .Content }}</div>
   </header>
 
-  {{ partial "post-list.html" (where site.RegularPages "Section" "posts") }}
+  {{- $posts := where site.RegularPages "Section" "posts" }}
+  <section class="container posts" aria-labelledby="posts-heading">
+    <div class="list-bar">
+      <h2 id="posts-heading">{{ len $posts }} {{ cond (eq (len $posts) 1) "post" "posts" }}</h2>
+      {{- with site.Home.OutputFormats.Get "rss" }}
+      <a href="{{ .RelPermalink }}">{{ partial "icon.html" "rss" }} RSS feed</a>
+      {{- end }}
+    </div>
+
+    {{- with $posts }}
+    <div class="post-grid">
+      {{- range $i, $post := . }}
+      {{ partial "post-card.html" (dict "page" $post "wide" (eq $i 0)) }}
+      {{- end }}
+    </div>
+    {{- else }}
+    <p class="empty">No posts yet.</p>
+    {{- end }}
+  </section>
 {{ end }}

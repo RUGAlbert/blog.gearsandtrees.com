@@ -1,0 +1,19 @@
+{{- /* One post in a list of posts, as a card. Given a dict:
+
+       page  the post
+       wide  true for a card across the whole grid, with a larger title
+
+       The title is an <h3>, under the <h2> each list of posts starts with. The
+       whole card is the link: the title's link is stretched over it in CSS. */ -}}
+{{- $page := .page -}}
+<article class="card{{ if .wide }} card--wide{{ end }}">
+  <p class="card-meta">
+    {{ partial "date.html" $page }}
+    <span>{{ $page.ReadingTime }} min read</span>
+  </p>
+  <h3 class="card-title"><a href="{{ $page.RelPermalink }}">{{ $page.Title }}</a></h3>
+  {{- with $page.Summary }}
+  <p class="card-summary">{{ . | plainify }}</p>
+  {{- end }}
+  <span class="card-more" aria-hidden="true">Read post {{ partial "icon.html" "arrow-right" }}</span>
+</article>

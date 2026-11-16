@@ -1,15 +1,36 @@
 /*
- * The whole site's styles.
+ * The whole site's styles, apart from the colours of highlighted code, which
+ * are in syntax.css.
  *
- * The palette, type and page frame are copied from the landing page
- * (server/landing/src/styles.css and its blog components) so the blog reads as
- * part of the same site. The two repositories cannot share a file, so a change
- * to the palette there has to be repeated here.
+ * The six colours at the top of :root are copied from the landing page
+ * (server/landing/src/styles.css), so the blog keeps the site's palette. The
+ * two repositories cannot share a file, so a change to them there has to be
+ * repeated here. Everything else is the blog's own.
  */
+
+/* Urbanist, from static/fonts/ (licence: static/fonts/OFL.txt). One variable
+   file per style covers every weight. Only the Latin set is included; a
+   character outside it falls back to the system font. */
+@font-face {
+  font-family: Urbanist;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/urbanist-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: Urbanist;
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/urbanist-latin-italic.woff2') format('woff2');
+}
 
 :root {
   color-scheme: light dark;
 
+  /* The landing page's palette. */
   --bg: #f6f5f1;
   --surface: #fffefb;
   --border: #e0ddd3;
@@ -17,7 +38,28 @@
   --muted: #6c675c;
   --accent: #3f6b42;
 
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Mixed from the palette, so they follow it into dark mode. */
+  --prose: color-mix(in srgb, var(--text) 84%, var(--bg));
+  --line: color-mix(in srgb, var(--text) 12%, transparent);
+  --glass: color-mix(in srgb, var(--surface) 65%, transparent);
+  --accent-line: color-mix(in srgb, var(--accent) 40%, transparent);
+  --accent-wash: color-mix(in srgb, var(--accent) 8%, transparent);
+  --glow: color-mix(in srgb, var(--accent) 22%, transparent);
+
+  /* Code blocks are dark in both modes, which is what lets syntax.css be a
+     single palette. The accent here is the dark mode one, readable on them. */
+  --code-bg: #111315;
+  --code-border: #2a2e33;
+  --code-text: #e6edf3;
+  --code-muted: #8b949e;
+  --code-accent: #8fbf8a;
+
+  --font-sans: Urbanist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --gutter: 1.25rem;
+  --header-h: 4rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,149 +70,793 @@
     --text: #e8e6e1;
     --muted: #9a958c;
     --accent: #8fbf8a;
+
+    --glass: color-mix(in srgb, var(--surface) 55%, transparent);
+    --glow: color-mix(in srgb, var(--accent) 16%, transparent);
+    --code-bg: #0e1011;
   }
 }
 
-* {
+@media (min-width: 768px) {
+  :root {
+    --gutter: 2.5rem;
+    --header-h: 5rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Base.
+ * ------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  /* A link to a heading leaves it below the sticky header, not under it. */
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
 body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  line-height: 1.55;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------------------------------------------------------------------------
- * The page frame, the same on every page.
- * ------------------------------------------------------------------------- */
-
-/* A reading column: about 70 characters to the line at the body's size. */
-.page {
-  max-width: 42rem;
-  margin: 0 auto;
-  padding: clamp(2.5rem, 8vw, 5rem) 1.25rem 3rem;
+main {
+  flex: 1;
 }
 
-.back {
-  display: inline-block;
-  margin-bottom: 2rem;
-  color: var(--muted);
-  font-size: 0.9rem;
+a {
+  color: inherit;
   text-decoration: none;
 }
 
-.back:hover,
-.back:focus-visible {
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* A line icon from the icon partial, the size of the text beside it. */
+.icon {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  padding: 0.5rem 0.75rem;
+  background: var(--accent);
+  color: var(--bg);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.container {
+  width: 100%;
+  max-width: calc(76rem + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* A small uppercase label in the accent colour, led by a square. */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+}
+
+/* The page title fades and slides in once, as the page opens. */
+.reveal {
+  animation: reveal 0.9s var(--ease-out) both;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    filter: blur(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+}
+
+/* A soft glow of the accent and a faint grid at the top of every page, behind
+   the header and the title. It scrolls away with the page. */
+.backdrop {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: -1;
+  height: 44rem;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 30% 50% at 50% -8%, var(--glow), transparent 72%),
+    radial-gradient(ellipse 70% 60% at 50% -12%, var(--accent-wash), transparent 70%);
+}
+
+.backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-position: center top;
+  background-size: 3rem 3rem;
+  opacity: 0.5;
+  -webkit-mask-image: radial-gradient(ellipse 55% 65% at 50% 0%, #000, transparent 75%);
+  mask-image: radial-gradient(ellipse 55% 65% at 50% 0%, #000, transparent 75%);
+}
+
+/* ---------------------------------------------------------------------------
+ * The header: the wordmark and two links. It stays at the top, over the page,
+ * and gains a blurred backing once the page scrolls under it.
+ * ------------------------------------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--header-h);
+  /* The page starts at the top of the window, under the header, so the
+     backdrop runs behind it. Each page's first section makes room for it. */
+  margin-bottom: calc(-1 * var(--header-h));
+}
+
+.site-header-bg {
+  position: absolute;
+  inset: 0 0 -1.5rem;
+  background: linear-gradient(
+    color-mix(in srgb, var(--bg) 82%, transparent),
+    color-mix(in srgb, var(--bg) 45%, transparent)
+  );
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  -webkit-mask-image: linear-gradient(#000 62%, transparent);
+  mask-image: linear-gradient(#000 62%, transparent);
+  pointer-events: none;
+}
+
+/* Where the browser can tie an animation to scrolling, the backing fades in
+   over the first 5rem. Elsewhere it is always there. */
+@supports (animation-timeline: scroll()) {
+  .site-header-bg {
+    animation: header-bg linear both;
+    animation-timeline: scroll();
+    animation-range: 0 5rem;
+  }
+}
+
+@keyframes header-bg {
+  from {
+    opacity: 0;
+  }
+}
+
+.site-header-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 100%;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wordmark-sub {
   color: var(--accent);
 }
 
-.date {
+.wordmark-sub::before {
+  content: '/';
+  margin-inline: 0.6em;
   color: var(--muted);
-  font-size: 0.9rem;
 }
 
-.footer {
-  margin-top: 3rem;
+.site-nav {
+  display: flex;
+  align-items: center;
+  margin-right: -0.625rem;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2.75rem;
+  padding-inline: 0.625rem;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+
+.nav-link:hover {
+  color: var(--text);
+}
+
+/* On a phone the wordmark loses "/ Blog" and the feed link its label, so the
+   header fits on one line. */
+@media (max-width: 479px) {
+  .wordmark {
+    letter-spacing: 0.18em;
+  }
+
+  .wordmark-sub,
+  .nav-label {
+    display: none;
+  }
 }
 
 /* ---------------------------------------------------------------------------
- * The front page: a heading and the list of posts.
+ * The heading of the front page and of the not-found page.
  * ------------------------------------------------------------------------- */
 
-.intro {
-  margin-bottom: 2.5rem;
+.page-head {
+  padding-top: calc(var(--header-h) + 3.5rem);
+  padding-bottom: 3.5rem;
+  text-align: center;
 }
 
-.intro h1 {
-  margin: 0 0 0.5rem;
-  font-size: clamp(2rem, 6vw, 2.75rem);
+.page-head .eyebrow {
+  justify-content: center;
+}
+
+.page-title {
+  margin: 0;
+  font-size: clamp(2.75rem, 9vw, 4.5rem);
+  font-weight: 350;
+  line-height: 1.1;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
-.intro p {
-  margin: 0;
+.page-lede {
+  max-width: 34rem;
+  margin: 1.5rem auto 0;
   color: var(--muted);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  text-wrap: balance;
 }
 
-.list {
-  list-style: none;
+.page-lede p {
   margin: 0;
-  padding: 0;
 }
 
-.entry {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 1rem 0;
-}
-
-.entry + .entry {
-  border-top: 1px solid var(--border);
-}
-
-.entry:first-child {
-  padding-top: 0;
-}
-
-.entry .date {
-  font-size: 0.85rem;
-}
-
-.title {
-  /* Fits the link to its text, so the clickable area is the title and not the
-     empty space beside it. */
-  align-self: flex-start;
-  color: var(--text);
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.title:hover,
-.title:focus-visible {
+.page-lede a {
   color: var(--accent);
   text-decoration: underline;
-  text-underline-offset: 0.15em;
+  text-underline-offset: 3px;
 }
 
-.summary {
-  margin: 0;
+@media (min-width: 768px) {
+  .page-head {
+    padding-top: calc(var(--header-h) + 5rem);
+    padding-bottom: 4.5rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Lists of posts: a bar above them, and a grid of cards.
+ * ------------------------------------------------------------------------- */
+
+.posts {
+  padding-bottom: 5rem;
+}
+
+.list-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.list-bar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  transition: color 0.15s;
+}
+
+.list-bar a:hover {
+  color: var(--text);
+}
+
+.list-bar h2 {
+  margin: 0;
+  font: inherit;
+}
+
+.post-grid {
+  display: grid;
+  gap: 1.5rem;
+  padding-top: 2rem;
+}
+
+@media (min-width: 640px) {
+  .post-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .post-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .empty {
+  margin: 0;
+  padding-top: 2rem;
   color: var(--muted);
+}
+
+/* One post in a list. The whole card is the link: the title's link is
+   stretched over it, so it is still one link to a screen reader. */
+.card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 15rem;
+  padding: 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom right, var(--accent-wash), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.card:hover {
+  border-color: var(--accent-line);
+  box-shadow: 0 25px 50px -12px var(--glow);
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.card-meta > * + *::before {
+  content: '·';
+  margin-right: 0.75rem;
+}
+
+.card-title {
+  margin: 1rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.card-title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.card-title a:focus-visible {
+  outline: none;
+}
+
+.card:has(.card-title a:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.card-summary {
+  display: -webkit-box;
+  margin: 0.625rem 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.card-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: auto;
+  padding-top: 2rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.card-more .icon {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.2s var(--ease-out);
+}
+
+.card:hover .card-more .icon {
+  transform: translateX(3px);
+}
+
+/* The newest post on the front page: across the whole grid, with a larger
+   title and a grid pattern fading in from the corner. */
+.card--wide {
+  grid-column: 1 / -1;
+  min-height: 18rem;
+}
+
+.card--wide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-position: right -1px top -1px;
+  background-size: 2rem 2rem;
+  -webkit-mask-image: radial-gradient(ellipse 55% 100% at 100% 0%, #000, transparent 75%);
+  mask-image: radial-gradient(ellipse 55% 100% at 100% 0%, #000, transparent 75%);
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .card--wide {
+    padding: 2.5rem;
+  }
+
+  .card--wide .card-title {
+    max-width: 38rem;
+    margin-top: 1.5rem;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    font-weight: 350;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .card--wide .card-summary {
+    max-width: 40rem;
+    margin-top: 1rem;
+    font-size: 1.0625rem;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
 }
 
 /* ---------------------------------------------------------------------------
- * A post, and the not-found page that borrows its heading.
+ * A post.
+ *
+ * The heading and the text share a frame, so the title lines up with the text
+ * under it: one reading column, or on a wide screen with a table of contents,
+ * that column and the contents beside it.
  * ------------------------------------------------------------------------- */
 
-.post-header {
-  margin-bottom: 2rem;
+.post-frame {
+  max-width: calc(44rem + 2 * var(--gutter));
 }
 
-.post-header h1 {
-  margin: 0 0 0.5rem;
-  font-size: clamp(1.75rem, 5vw, 2.4rem);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+.post-hero {
+  padding-top: calc(var(--header-h) + 2.5rem);
 }
 
-.missing {
-  margin: 0;
+.post-hero-inner {
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
   color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.15s;
 }
 
-.missing a {
+.breadcrumb:hover {
+  color: var(--text);
+}
+
+.breadcrumb .icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.post-title {
+  max-width: 46rem;
+  margin: 1.5rem 0 2rem;
+  font-size: 2.25rem;
+  font-weight: 350;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin: 0;
+}
+
+.post-meta div + div {
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--line);
+}
+
+.post-meta dt {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.post-meta dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.9375rem;
+}
+
+.post-layout {
+  padding-top: 2.5rem;
+  padding-bottom: 5rem;
+}
+
+/* The table of contents: a folding box above the text on a narrow screen, and
+   a list that stays in view beside it on a wide one. */
+.toc-box {
+  margin-bottom: 2.5rem;
+  border: 1px solid var(--line);
+  background: var(--glass);
+}
+
+.toc-box summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  list-style: none;
+  cursor: pointer;
+}
+
+.toc-box summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc-box summary .icon {
   color: var(--accent);
+  transform: rotate(90deg);
+  transition: transform 0.2s;
+}
+
+.toc-box[open] summary .icon {
+  transform: rotate(-90deg);
+}
+
+.toc-box nav {
+  padding: 0 1rem 0.75rem;
+}
+
+.toc-box ul,
+.toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc-box a {
+  display: block;
+  padding: 0.5rem 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+
+.toc-box ul ul a {
+  padding-left: 1rem;
+}
+
+.toc-box a:hover {
+  color: var(--text);
+}
+
+.post-aside {
+  display: none;
+}
+
+.toc-title {
+  margin: 0 0 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.toc-title span {
+  display: inline-block;
+  margin-bottom: -1px;
+  padding-block: 0.375rem;
+  border-bottom: 2px solid var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.toc nav {
+  max-height: calc(100vh - var(--header-h) - 6rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.toc nav > ul {
+  border-left: 2px solid var(--line);
+}
+
+.toc a {
+  display: block;
+  margin-left: -2px;
+  padding: 0.3rem 0 0.3rem 0.875rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.toc ul ul a {
+  padding-left: 1.5rem;
+}
+
+.toc a:hover,
+.toc a[aria-current] {
+  color: var(--text);
+}
+
+.toc a[aria-current] {
+  border-left-color: var(--accent);
+}
+
+@media (min-width: 768px) {
+  .post-hero {
+    padding-top: calc(var(--header-h) + 4rem);
+  }
+
+  .post-hero-inner {
+    padding-bottom: 3rem;
+  }
+
+  .post-title {
+    margin: 2rem 0 2.5rem;
+    font-size: 3rem;
+  }
+
+  .post-layout {
+    padding-top: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .post-title {
+    font-size: 3.5rem;
+  }
+
+  .has-toc .post-frame {
+    max-width: calc(62rem + 2 * var(--gutter));
+  }
+
+  .has-toc .post-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    column-gap: 3.5rem;
+    align-items: start;
+  }
+
+  .toc-box {
+    display: none;
+  }
+
+  .post-aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+    display: block;
+  }
+}
+
+/* "More posts" under a post. */
+.more {
+  padding-bottom: 5rem;
 }
 
 /* ---------------------------------------------------------------------------
@@ -178,104 +864,382 @@ body {
  * ------------------------------------------------------------------------- */
 
 .prose {
-  font-size: 1.05rem;
-  line-height: 1.7;
+  color: var(--prose);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  overflow-wrap: break-word;
 }
 
-.prose p,
-.prose ul,
-.prose ol,
-.prose blockquote,
-.prose pre,
-.prose table {
-  margin: 0 0 1.25rem;
-}
-
-.prose h2,
-.prose h3,
-.prose h4 {
-  margin: 2.25rem 0 0.75rem;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-}
-
-.prose h2 {
-  font-size: 1.4rem;
-}
-
-.prose h3 {
-  font-size: 1.15rem;
-}
-
-.prose h4 {
-  font-size: 1rem;
-}
-
-.prose a {
-  color: var(--accent);
-  text-underline-offset: 0.15em;
-}
-
-.prose ul,
-.prose ol {
-  padding-left: 1.5rem;
-}
-
-.prose li + li {
-  margin-top: 0.35rem;
-}
-
-.prose blockquote {
-  margin-left: 0;
-  padding-left: 1rem;
-  border-left: 3px solid var(--border);
-  color: var(--muted);
-}
-
-.prose code {
-  padding: 0.1em 0.3em;
-  border: 1px solid var(--border);
-  border-radius: 0.3rem;
-  background: var(--surface);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.9em;
-}
-
-/* A long line scrolls inside the block instead of widening the page. */
-.prose pre {
-  overflow-x: auto;
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.6rem;
-  background: var(--surface);
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.prose pre code {
-  padding: 0;
-  border: 0;
-  background: none;
-  font-size: inherit;
-}
-
-.prose img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.6rem;
-}
-
-.prose hr {
-  margin: 2rem 0;
-  border: 0;
-  border-top: 1px solid var(--border);
-}
-
-/* The page around the post sets the spacing at its edges, not the post. */
 .prose > :first-child {
   margin-top: 0;
 }
 
 .prose > :last-child {
   margin-bottom: 0;
+}
+
+.prose p {
+  margin: 0 0 1.25rem;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  color: var(--text);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.prose h2 {
+  margin: 3.25rem 0 1rem;
+  font-size: 1.625rem;
+  line-height: 1.3;
+}
+
+.prose h3 {
+  margin: 2.5rem 0 0.875rem;
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.prose h4 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.prose a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+
+.prose a:hover {
+  color: var(--text);
+}
+
+.prose strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.prose ul,
+.prose ol {
+  margin: 1.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin: 0.5rem 0;
+  padding-left: 0.375rem;
+}
+
+.prose li::marker {
+  color: var(--muted);
+}
+
+.prose li > ul,
+.prose li > ol {
+  margin: 0.5rem 0;
+}
+
+.prose li > p {
+  margin-bottom: 0.5rem;
+}
+
+.prose blockquote {
+  margin: 1.75rem 0;
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--accent);
+  color: var(--text);
+}
+
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 2.5rem auto;
+  border: 1px solid var(--line);
+}
+
+.prose figure {
+  margin: 2.5rem 0;
+}
+
+.prose figure img {
+  margin: 0 auto;
+}
+
+.prose figcaption {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-style: italic;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.prose hr {
+  margin: 3rem 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.prose code {
+  padding: 0.125em 0.375em;
+  border: 1px solid var(--line);
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  font-weight: 400;
+}
+
+.prose a code {
+  color: inherit;
+}
+
+/* A code block: dark in both modes. A long line scrolls inside the block
+   instead of widening the page. */
+.prose pre {
+  margin: 1.75rem 0;
+  padding: 1rem 1.125rem;
+  overflow-x: auto;
+  border: 1px solid var(--code-border);
+  background: var(--code-bg);
+  color: var(--code-text);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+.prose pre code {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* A fenced code block, from layouts/_markup/render-codeblock.html: the
+   language and a copy button over the code. */
+.code {
+  margin: 1.75rem 0;
+  border: 1px solid var(--code-border);
+  background: var(--code-bg);
+}
+
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.5rem;
+  padding: 0.375rem 0.5rem 0.375rem 1.125rem;
+  border-bottom: 1px solid var(--code-border);
+  color: var(--code-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.code-copy {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--code-border);
+  background: none;
+  color: var(--code-text);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.code-copy:hover {
+  border-color: var(--code-accent);
+  color: var(--code-accent);
+}
+
+.code-copy:focus-visible {
+  outline-color: var(--code-accent);
+  outline-offset: 1px;
+}
+
+.code-copy[hidden] {
+  display: none;
+}
+
+.prose .code pre {
+  margin: 0;
+  border: 0;
+  background: none;
+}
+
+.prose table {
+  display: block;
+  width: 100%;
+  margin: 1.75rem 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.prose th,
+.prose td {
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  background: var(--glass);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.prose sup {
+  line-height: 0;
+}
+
+.prose .footnote-ref,
+.prose .footnote-backref {
+  text-decoration: none;
+}
+
+.prose .footnotes {
+  margin-top: 3rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.prose .footnotes hr {
+  margin: 0 0 1.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * The not-found page.
+ * ------------------------------------------------------------------------- */
+
+.missing {
+  padding-bottom: 6rem;
+  text-align: center;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.text-link .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.text-link:hover {
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------------------
+ * The footer.
+ * ------------------------------------------------------------------------- */
+
+.site-footer {
+  border-top: 1px solid var(--line);
+}
+
+.site-footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding-top: 3.5rem;
+}
+
+.footer-brand p {
+  max-width: 22rem;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 10rem));
+  gap: 2rem;
+}
+
+.footer-heading {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.footer-links {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+}
+
+.footer-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  color: var(--muted);
+  transition: color 0.15s;
+}
+
+.footer-links a:hover {
+  color: var(--text);
+}
+
+.site-footer-note {
+  padding-top: 2.5rem;
+  padding-bottom: 3rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.site-footer-note p {
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .site-footer-inner {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* Bigger targets for a finger than for a mouse. */
+@media (pointer: coarse) {
+  .list-bar a,
+  .breadcrumb,
+  .footer-links a {
+    min-height: 2.75rem;
+  }
+
+  .code-copy {
+    padding-block: 0.625rem;
+  }
 }

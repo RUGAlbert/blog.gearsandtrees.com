@@ -1,0 +1,7 @@
+{{- /* A post's table of contents, given the post: a list of links to its `##`
+       and `###` headings (set in hugo.toml). The post page shows it twice, for
+       narrow and for wide screens, so the id Hugo puts on it is left off: an
+       id has to be unique on the page. */ -}}
+<nav aria-label="On this page">
+  {{- replace .TableOfContents `<nav id="TableOfContents">` "" | replaceRE `</nav>\s*$` "" | safeHTML -}}
+</nav>

@@ -28,6 +28,11 @@ The front matter at the top:
 | `draft`   | `true` keeps the post off the site. Delete the line to publish.               |
 
 The title is already the page's `<h1>`, so headings in the post start at `##`.
+A post with three or more `##` and `###` headings gets a table of contents.
+
+A code block is coloured when its opening fence names the language, as in
+```` ```go ````; without one it is plain text. Either way it gets a copy button
+and a label with the language.
 
 A post with images goes in a folder of its own, with the text in `index.md` and
 the images beside it:
@@ -124,19 +129,23 @@ The feed for readers is `/index.xml` (RSS), and every page links to it.
 | `content/_index.md`            | The front page's title and the line under it.                        |
 | `content/posts/`               | The posts.                                                            |
 | `archetypes/posts.md`          | What `hugo new content posts/...` starts a post from.                 |
-| `layouts/baseof.html`          | The frame around every page: `<head>`, the column, the footer.        |
-| `layouts/home.html`            | The front page: the list of posts.                                    |
-| `layouts/page.html`            | One post.                                                             |
+| `layouts/baseof.html`          | The frame around every page: `<head>`, the header, the footer.        |
+| `layouts/home.html`            | The front page: the grid of posts.                                    |
+| `layouts/page.html`            | One post, its table of contents, and more posts under it.             |
 | `layouts/404.html`             | What Pages serves for an address with no page.                        |
 | `layouts/home.json`            | `/index.json`, for the landing page.                                  |
-| `layouts/_partials/`           | Pieces used by more than one page: the post list and the date.        |
-| `assets/css/main.css`          | All the styles.                                                       |
-| `static/`                      | Copied into the site as it is: the icons.                             |
+| `layouts/_partials/`           | Pieces of the pages: the post card, the date, the contents, icons.    |
+| `layouts/_markup/`             | How code blocks come out: the label and copy button above the code.   |
+| `assets/css/main.css`          | All the styles, apart from the colours of highlighted code.           |
+| `assets/css/syntax.css`        | The colours of highlighted code, made by Hugo (see its top comment).  |
+| `assets/js/main.js`            | The copy buttons, and the marker in a post's table of contents.       |
+| `static/`                      | Copied into the site as it is: the icons and the font.                |
 | `.github/workflows/deploy.yml` | The build and deploy.                                                 |
 
-The palette and type in `main.css` are copied from the landing page
-(`server/landing/src/styles.css`), so the blog looks like the rest of the site.
-A change to one has to be made in the other too.
+The six colours at the top of `main.css` are copied from the landing page
+(`server/landing/src/styles.css`), so the blog keeps the site's palette. A
+change to them has to be made in both. The rest of the look is the blog's own,
+including the font, Urbanist, which is in `static/fonts/` with its licence.
 
 ## Updating Hugo
 

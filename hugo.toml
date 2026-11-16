@@ -26,14 +26,20 @@ posts = '/:contentbasename/'
 home = ['html', 'rss', 'json']
 
 [params]
-# Where the back link at the top of the blog's front page goes.
+# Where the "Projects" links in the header and footer go.
 mainSite = 'https://gearsandtrees.com/'
 
-# Code blocks come out as plain <pre><code>, styled by the site's own CSS.
-# Hugo's highlighter writes its colours inline, in a single palette that cannot
-# follow the reader's dark mode, so it is off until the CSS for both is added.
+# Code is highlighted with class names instead of inline colours, and the
+# colours are in assets/css/syntax.css. Code blocks are dark in light mode too,
+# so one palette serves both. layouts/_markup/render-codeblock.html puts the
+# language and a copy button above each block.
 [markup.highlight]
-codeFences = false
+noClasses = false
+
+# A post's table of contents lists its `##` and `###` headings.
+[markup.tableOfContents]
+startLevel = 2
+endLevel = 3
 
 # The templates use the layout system Hugo introduced in 0.146 (layouts/home.html
 # rather than layouts/_default/...), and `locale` above is from 0.158. An older

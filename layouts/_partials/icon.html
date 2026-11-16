@@ -1,0 +1,11 @@
+{{- /* A small line icon, given its name. It takes the size and colour of the
+       text around it, and is hidden from screen readers: the link or button it
+       is in has to say what it does in words. */ -}}
+{{- $paths := dict
+  "arrow-right" `<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>`
+  "arrow-up-right" `<path d="M7 17 17 7"/><path d="M7 7h10v10"/>`
+  "chevron-left" `<path d="m15 18-6-6 6-6"/>`
+  "chevron-right" `<path d="m9 18 6-6-6-6"/>`
+  "rss" `<path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>`
+-}}
+{{- printf `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg>` (index $paths .) | safeHTML -}}

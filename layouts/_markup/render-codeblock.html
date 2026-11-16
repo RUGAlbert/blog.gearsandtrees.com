@@ -1,0 +1,15 @@
+{{- /* A fenced code block in a post: the language over the code, with a
+       button to copy it, and the code highlighted with the colours in
+       assets/css/syntax.css. The button is hidden until assets/js/main.js
+       finds the browser can copy, so without the script there is no button
+       that does nothing.
+
+       A block without a language, or with one Hugo does not know, comes out
+       uncoloured, labelled "text". */ -}}
+<div class="code">
+  <div class="code-head">
+    <span>{{ .Type | default "text" }}</span>
+    <button type="button" class="code-copy" hidden>Copy</button>
+  </div>
+  {{- transform.Highlight .Inner .Type .Options }}
+</div>

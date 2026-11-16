@@ -1,15 +1,66 @@
-{{- /* One post. */ -}}
-{{ define "main" }}
-  <a class="back" href="{{ site.Home.RelPermalink }}">&larr; All posts</a>
+{{- /* One post: its heading, its text, and the newest few other posts.
 
-  <article>
-    <header class="post-header">
-      <h1>{{ .Title }}</h1>
-      {{ partial "date.html" . }}
+       A post with three or more headings gets a table of contents: a folding
+       box above the text on a narrow screen, and a list beside the text that
+       stays in view on a wide one. A shorter post does without. */ -}}
+{{ define "main" }}
+  {{- $headings := 0 }}
+  {{- range .Fragments.HeadingsMap }}
+    {{- if and (ge .Level 2) (le .Level 3) }}{{ $headings = add $headings 1 }}{{ end }}
+  {{- end }}
+  {{- $toc := ge $headings 3 }}
+  <article{{ if $toc }} class="has-toc"{{ end }}>
+    <header class="container post-frame post-hero">
+      <div class="post-hero-inner">
+        <a class="breadcrumb" href="{{ site.Home.RelPermalink }}">{{ partial "icon.html" "chevron-left" }} All posts</a>
+        <h1 class="post-title reveal">{{ .Title }}</h1>
+        <dl class="post-meta">
+          <div>
+            <dt>Published</dt>
+            <dd>{{ partial "date.html" . }}</dd>
+          </div>
+          <div>
+            <dt>Reading time</dt>
+            <dd>{{ .ReadingTime }} min</dd>
+          </div>
+        </dl>
+      </div>
     </header>
 
-    <div class="prose">
-      {{ .Content }}
+    <div class="container post-frame post-layout">
+      <div class="post-main">
+        {{- if $toc }}
+        <details class="toc-box">
+          <summary>On this page {{ partial "icon.html" "chevron-right" }}</summary>
+          {{ partial "toc.html" . }}
+        </details>
+        {{- end }}
+        <div class="prose">
+          {{ .Content }}
+        </div>
+      </div>
+      {{- if $toc }}
+      <aside class="post-aside">
+        <div class="toc" data-toc>
+          <p class="toc-title"><span>On this page</span></p>
+          {{ partial "toc.html" . }}
+        </div>
+      </aside>
+      {{- end }}
     </div>
   </article>
+
+  {{- with first 3 (where (where site.RegularPages "Section" "posts") "Permalink" "ne" .Permalink) }}
+  <section class="container more" aria-labelledby="more-heading">
+    <div class="list-bar">
+      <h2 id="more-heading">More posts</h2>
+      <a href="{{ site.Home.RelPermalink }}">All posts {{ partial "icon.html" "arrow-right" }}</a>
+    </div>
+    <div class="post-grid">
+      {{- range . }}
+      {{ partial "post-card.html" (dict "page" .) }}
+      {{- end }}
+    </div>
+  </section>
+  {{- end }}
 {{ end }}
