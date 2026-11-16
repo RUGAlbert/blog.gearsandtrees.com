@@ -339,12 +339,24 @@ a {
   text-underline-offset: 0.15em;
 }
 
-/* auto-fill makes this a single column on a phone without a media query, two
-   in the column on a wider screen. */
+/* One column on a phone, two from 640px. */
 .post-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .post-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* A card left alone on the last row spans both columns, rather than sitting
+   beside an empty one. Only the narrow cards are counted, because the wide
+   one has a row to itself. */
+.post-grid > .card:not(.card--wide):last-child:nth-child(odd of .card:not(.card--wide)) {
+  grid-column: 1 / -1;
 }
 
 .empty {
