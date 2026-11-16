@@ -1,6 +1,7 @@
 ---
 title: Blog
-description: Notes on the projects on gearsandtrees.com, why they exist, and how they are built.
+description: About my projects on gearsandtrees.com, and other things in software that interest me.
 ---
 
-Notes on the projects on this server: why they exist, and how they are built.
+About my projects on gearsandtrees.com, and other things in software that
+interest me.

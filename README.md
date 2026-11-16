@@ -139,13 +139,17 @@ The feed for readers is `/index.xml` (RSS), and every page links to it.
 | `assets/css/main.css`          | All the styles, apart from the colours of highlighted code.           |
 | `assets/css/syntax.css`        | The colours of highlighted code, made by Hugo (see its top comment).  |
 | `assets/js/main.js`            | The copy buttons, and the marker in a post's table of contents.       |
+| `assets/images/`               | The Gears & Trees mark in the header, resized when the site is built. |
 | `static/`                      | Copied into the site as it is: the icons and the font.                |
 | `.github/workflows/deploy.yml` | The build and deploy.                                                 |
 
-The six colours at the top of `main.css` are copied from the landing page
-(`server/landing/src/styles.css`), so the blog keeps the site's palette. A
-change to them has to be made in both. The rest of the look is the blog's own,
-including the font, Urbanist, which is in `static/fonts/` with its licence.
+The blog looks like the landing page, so the two read as one site: the same
+paper and green, rounded cards that lift on hover, and addresses in a green
+monospace. Two things are copied from it rather than shared, so a change there
+has to be repeated here: the six colours at the top of `main.css` (from
+`server/landing/src/styles.css`), and the mark in `assets/images/` (from
+`server/landing/public/logos/`). The font is the blog's own, Urbanist, which is
+in `static/fonts/` with its licence.
 
 ## Updating Hugo
 
