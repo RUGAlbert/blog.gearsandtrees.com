@@ -12,18 +12,12 @@
   <article{{ if $toc }} class="has-toc"{{ end }}>
     <header class="container post-frame post-hero">
       <div class="post-hero-inner">
-        <a class="breadcrumb" href="{{ site.Home.RelPermalink }}">{{ partial "icon.html" "chevron-left" }} All posts</a>
-        <h1 class="post-title reveal">{{ .Title }}</h1>
-        <dl class="post-meta">
-          <div>
-            <dt>Published</dt>
-            <dd>{{ partial "date.html" . }}</dd>
-          </div>
-          <div>
-            <dt>Reading time</dt>
-            <dd>{{ .ReadingTime }} min</dd>
-          </div>
-        </dl>
+        <a class="back" href="{{ site.Home.RelPermalink }}">{{ partial "icon.html" "chevron-left" }} All posts</a>
+        <h1 class="post-title">{{ .Title }}</h1>
+        <p class="post-meta">
+          {{ partial "date.html" . }}
+          <span>{{ .ReadingTime }} min read</span>
+        </p>
       </div>
     </header>
 
@@ -42,7 +36,7 @@
       {{- if $toc }}
       <aside class="post-aside">
         <div class="toc" data-toc>
-          <p class="toc-title"><span>On this page</span></p>
+          <p class="toc-title">On this page</p>
           {{ partial "toc.html" . }}
         </div>
       </aside>
@@ -52,7 +46,7 @@
 
   {{- with first 3 (where (where site.RegularPages "Section" "posts") "Permalink" "ne" .Permalink) }}
   <section class="container more" aria-labelledby="more-heading">
-    <div class="list-bar">
+    <div class="section-head">
       <h2 id="more-heading">More posts</h2>
       <a href="{{ site.Home.RelPermalink }}">All posts {{ partial "icon.html" "arrow-right" }}</a>
     </div>

@@ -1,13 +1,13 @@
 {{- /* GitHub Pages serves this for any address that has no page. */ -}}
 {{ define "main" }}
   <header class="container page-head">
-    <p class="eyebrow">404</p>
-    <h1 class="page-title reveal">Page not found</h1>
+    <p class="tag">404</p>
+    <h1 class="page-title">Page not found</h1>
     <div class="page-lede">
       <p>There is no post at this address. Every post is listed on the front page of the blog.</p>
     </div>
   </header>
   <div class="container missing">
-    <a class="text-link" href="{{ site.Home.RelPermalink }}">{{ partial "icon.html" "chevron-left" }} All posts</a>
+    <a class="back" href="{{ site.Home.RelPermalink }}">{{ partial "icon.html" "chevron-left" }} All posts</a>
   </div>
 {{ end }}

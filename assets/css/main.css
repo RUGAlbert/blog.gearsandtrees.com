@@ -2,10 +2,16 @@
  * The whole site's styles, apart from the colours of highlighted code, which
  * are in syntax.css.
  *
+ * The look is the landing page's at gearsandtrees.com, so the blog reads as
+ * part of the same place: warm paper with a green accent, cards with rounded
+ * corners that lift and take the accent on hover, quiet muted text, and
+ * addresses in a green monospace, like the hosts on the landing page's
+ * project cards. There is no sticky header, glow or animation; the page is
+ * just the text.
+ *
  * The six colours at the top of :root are copied from the landing page
- * (server/landing/src/styles.css), so the blog keeps the site's palette. The
- * two repositories cannot share a file, so a change to them there has to be
- * repeated here. Everything else is the blog's own.
+ * (server/landing/src/styles.css). The two repositories cannot share a file,
+ * so a change to them there has to be repeated here.
  */
 
 /* Urbanist, from static/fonts/ (licence: static/fonts/OFL.txt). One variable
@@ -39,12 +45,8 @@
   --accent: #3f6b42;
 
   /* Mixed from the palette, so they follow it into dark mode. */
-  --prose: color-mix(in srgb, var(--text) 84%, var(--bg));
-  --line: color-mix(in srgb, var(--text) 12%, transparent);
-  --glass: color-mix(in srgb, var(--surface) 65%, transparent);
-  --accent-line: color-mix(in srgb, var(--accent) 40%, transparent);
-  --accent-wash: color-mix(in srgb, var(--accent) 8%, transparent);
-  --glow: color-mix(in srgb, var(--accent) 22%, transparent);
+  --prose: color-mix(in srgb, var(--text) 88%, var(--bg));
+  --accent-wash: color-mix(in srgb, var(--accent) 10%, transparent);
 
   /* Code blocks are dark in both modes, which is what lets syntax.css be a
      single palette. The accent here is the dark mode one, readable on them. */
@@ -57,9 +59,13 @@
   --font-sans: Urbanist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 
+  /* The landing page's corners: cards, the tiles and code inside them, and
+     the smallest things such as inline code. */
+  --radius: 0.75rem;
+  --radius-sm: 0.6rem;
+  --radius-xs: 0.3rem;
+
   --gutter: 1.25rem;
-  --header-h: 4rem;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -71,16 +77,7 @@
     --muted: #9a958c;
     --accent: #8fbf8a;
 
-    --glass: color-mix(in srgb, var(--surface) 55%, transparent);
-    --glow: color-mix(in srgb, var(--accent) 16%, transparent);
     --code-bg: #0e1011;
-  }
-}
-
-@media (min-width: 768px) {
-  :root {
-    --gutter: 2.5rem;
-    --header-h: 5rem;
   }
 }
 
@@ -96,12 +93,11 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  /* A link to a heading leaves it below the sticky header, not under it. */
-  scroll-padding-top: calc(var(--header-h) + 1rem);
+  /* A link to a heading leaves a little room above it. */
+  scroll-padding-top: 1.5rem;
 }
 
 body {
-  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
@@ -111,7 +107,7 @@ body {
   font-family: var(--font-sans);
   font-size: 1rem;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -149,6 +145,7 @@ a {
   left: 0.5rem;
   z-index: 100;
   padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-xs);
   background: var(--accent);
   color: var(--bg);
   transform: translateY(-200%);
@@ -158,220 +155,142 @@ a {
   transform: none;
 }
 
+/* The landing page's column: wide enough for two cards side by side. */
 .container {
   width: 100%;
-  max-width: calc(76rem + 2 * var(--gutter));
+  max-width: 56rem;
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
-/* A small uppercase label in the accent colour, led by a square. */
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0 0 1.25rem;
+/* A short label in the accent monospace on a small tile: "blog" beside the
+   name in the header, and the status on the not-found page. */
+.tag {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
   color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
 }
 
-.eyebrow::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: currentColor;
+/* A link back up, above a page's title. */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  transition: color 0.15s;
 }
 
-/* The page title fades and slides in once, as the page opens. */
-.reveal {
-  animation: reveal 0.9s var(--ease-out) both;
-}
-
-@keyframes reveal {
-  from {
-    opacity: 0;
-    transform: translateY(1.25rem);
-    filter: blur(10px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    animation: none;
-  }
-}
-
-/* A soft glow of the accent and a faint grid at the top of every page, behind
-   the header and the title. It scrolls away with the page. */
-.backdrop {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: -1;
-  height: 44rem;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 30% 50% at 50% -8%, var(--glow), transparent 72%),
-    radial-gradient(ellipse 70% 60% at 50% -12%, var(--accent-wash), transparent 70%);
-}
-
-.backdrop::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-position: center top;
-  background-size: 3rem 3rem;
-  opacity: 0.5;
-  -webkit-mask-image: radial-gradient(ellipse 55% 65% at 50% 0%, #000, transparent 75%);
-  mask-image: radial-gradient(ellipse 55% 65% at 50% 0%, #000, transparent 75%);
+.back:hover {
+  color: var(--accent);
 }
 
 /* ---------------------------------------------------------------------------
- * The header: the wordmark and two links. It stays at the top, over the page,
- * and gains a blurred backing once the page scrolls under it.
+ * The header: the name and two links, at the top of the page. It scrolls
+ * away with it.
  * ------------------------------------------------------------------------- */
 
 .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  height: var(--header-h);
-  /* The page starts at the top of the window, under the header, so the
-     backdrop runs behind it. Each page's first section makes room for it. */
-  margin-bottom: calc(-1 * var(--header-h));
-}
-
-.site-header-bg {
-  position: absolute;
-  inset: 0 0 -1.5rem;
-  background: linear-gradient(
-    color-mix(in srgb, var(--bg) 82%, transparent),
-    color-mix(in srgb, var(--bg) 45%, transparent)
-  );
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  -webkit-mask-image: linear-gradient(#000 62%, transparent);
-  mask-image: linear-gradient(#000 62%, transparent);
-  pointer-events: none;
-}
-
-/* Where the browser can tie an animation to scrolling, the backing fades in
-   over the first 5rem. Elsewhere it is always there. */
-@supports (animation-timeline: scroll()) {
-  .site-header-bg {
-    animation: header-bg linear both;
-    animation-timeline: scroll();
-    animation-range: 0 5rem;
-  }
-}
-
-@keyframes header-bg {
-  from {
-    opacity: 0;
-  }
-}
-
-.site-header-inner {
-  position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  height: 100%;
+  gap: 0.5rem 1rem;
+  padding-block: 1.25rem;
 }
 
-.wordmark {
+.brand {
   display: inline-flex;
-  align-items: baseline;
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
-.wordmark-sub {
-  color: var(--accent);
+/* The gear and the tree, a little taller than the name beside it. */
+.brand-mark {
+  display: block;
+  width: auto;
+  height: 2.5rem;
+  margin-right: 0.25rem;
 }
 
-.wordmark-sub::before {
-  content: '/';
-  margin-inline: 0.6em;
-  color: var(--muted);
+.brand .tag {
+  transition: border-color 0.15s;
+}
+
+.brand:hover .tag {
+  border-color: var(--accent);
 }
 
 .site-nav {
   display: flex;
   align-items: center;
-  margin-right: -0.625rem;
+  margin-right: -0.5rem;
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  height: 2.75rem;
-  padding-inline: 0.625rem;
+  min-height: 2.75rem;
+  padding-inline: 0.5rem;
   color: var(--muted);
-  font-size: 0.8125rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.95rem;
   transition: color 0.15s;
 }
 
 .nav-link:hover {
-  color: var(--text);
+  color: var(--accent);
 }
 
-/* On a phone the wordmark loses "/ Blog" and the feed link its label, so the
-   header fits on one line. */
+/* On a phone the name loses its "blog" tile and the feed link its label, so
+   the header fits on one line. */
 @media (max-width: 479px) {
-  .wordmark {
-    letter-spacing: 0.18em;
-  }
-
-  .wordmark-sub,
+  .brand .tag,
   .nav-label {
     display: none;
   }
 }
 
 /* ---------------------------------------------------------------------------
- * The heading of the front page and of the not-found page.
+ * The heading of the front page and of the not-found page, as on the landing
+ * page: a bold title and a muted line under it.
  * ------------------------------------------------------------------------- */
 
 .page-head {
-  padding-top: calc(var(--header-h) + 3.5rem);
-  padding-bottom: 3.5rem;
-  text-align: center;
+  padding-top: clamp(1.5rem, 6vw, 3.5rem);
+  padding-bottom: 2.5rem;
 }
 
-.page-head .eyebrow {
-  justify-content: center;
+.page-head .tag {
+  margin: 0 0 1rem;
 }
 
 .page-title {
-  margin: 0;
-  font-size: clamp(2.75rem, 9vw, 4.5rem);
-  font-weight: 350;
-  line-height: 1.1;
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
 .page-lede {
   max-width: 34rem;
-  margin: 1.5rem auto 0;
   color: var(--muted);
-  font-size: 1.125rem;
-  line-height: 1.6;
-  text-wrap: balance;
+  font-size: 1.05rem;
 }
 
 .page-lede p {
@@ -381,22 +300,15 @@ a {
 .page-lede a {
   color: var(--accent);
   text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-@media (min-width: 768px) {
-  .page-head {
-    padding-top: calc(var(--header-h) + 5rem);
-    padding-bottom: 4.5rem;
-  }
+  text-underline-offset: 0.15em;
 }
 
 /* ---------------------------------------------------------------------------
- * Lists of posts: a bar above them, and a grid of cards.
+ * Lists of posts: a line above them, and a grid of cards.
  * ------------------------------------------------------------------------- */
 
 .posts {
-  padding-bottom: 5rem;
+  padding-bottom: 3rem;
 }
 
 .list-bar {
@@ -404,24 +316,9 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--line);
+  margin-bottom: 1rem;
   color: var(--muted);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.list-bar a {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-height: 2rem;
-  transition: color 0.15s;
-}
-
-.list-bar a:hover {
-  color: var(--text);
+  font-size: 0.9rem;
 }
 
 .list-bar h2 {
@@ -429,86 +326,84 @@ a {
   font: inherit;
 }
 
+.list-bar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  color: var(--accent);
+}
+
+.list-bar a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* auto-fill makes this a single column on a phone without a media query, two
+   in the column on a wider screen. */
 .post-grid {
   display: grid;
-  gap: 1.5rem;
-  padding-top: 2rem;
-}
-
-@media (min-width: 640px) {
-  .post-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .post-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
 }
 
 .empty {
   margin: 0;
-  padding-top: 2rem;
   color: var(--muted);
 }
 
-/* One post in a list. The whole card is the link: the title's link is
-   stretched over it, so it is still one link to a screen reader. */
+/* One post in a list, like a project card on the landing page. The whole card
+   is the link: the title's link is stretched over it, so it is still one link
+   to a screen reader. */
 .card {
   position: relative;
-  isolation: isolate;
   display: flex;
   flex-direction: column;
-  min-height: 15rem;
-  padding: 1.5rem;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  background: var(--glass);
+  height: 100%;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
   transition:
-    border-color 0.3s,
-    box-shadow 0.3s;
+    border-color 0.15s ease,
+    transform 0.15s ease;
 }
 
-.card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(to bottom right, var(--accent-wash), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
+.card:hover,
+.card:has(.card-title a:focus-visible) {
+  border-color: var(--accent);
+  transform: translateY(-2px);
 }
 
-.card:hover {
-  border-color: var(--accent-line);
-  box-shadow: 0 25px 50px -12px var(--glow);
+.card:has(.card-title a:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
-.card:hover::after {
-  opacity: 1;
+.card-title a:focus-visible {
+  outline: none;
 }
 
 .card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 0.75rem;
-  margin: 0;
+  gap: 0.25rem 0.5rem;
+  margin: 0 0 0.5rem;
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 0.85rem;
 }
 
 .card-meta > * + *::before {
   content: '·';
-  margin-right: 0.75rem;
+  margin-right: 0.5rem;
 }
 
 .card-title {
-  margin: 1rem 0 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 700;
   line-height: 1.3;
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
@@ -519,90 +414,62 @@ a {
   z-index: 1;
 }
 
-.card-title a:focus-visible {
-  outline: none;
-}
-
-.card:has(.card-title a:focus-visible) {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
 .card-summary {
   display: -webkit-box;
-  margin: 0.625rem 0 0;
+  margin: 0 0 1rem;
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.9375rem;
-  line-height: 1.55;
+  font-size: 0.95rem;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   line-clamp: 3;
 }
 
-.card-more {
-  display: inline-flex;
+/* The post's address, where the landing page's cards have the project's
+   host. Pushed to the bottom so the addresses line up across cards of unequal
+   height. */
+.card-path {
+  display: flex;
   align-items: center;
-  gap: 0.375rem;
+  justify-content: space-between;
+  gap: 0.5rem;
   margin-top: auto;
-  padding-top: 2rem;
   color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+  overflow-wrap: anywhere;
 }
 
-.card-more .icon {
-  width: 1rem;
-  height: 1rem;
-  transition: transform 0.2s var(--ease-out);
+.card-path .icon {
+  transition: transform 0.15s ease;
 }
 
-.card:hover .card-more .icon {
+.card:hover .card-path .icon {
   transform: translateX(3px);
 }
 
 /* The newest post on the front page: across the whole grid, with a larger
-   title and a grid pattern fading in from the corner. */
+   title and more of its summary. */
 .card--wide {
   grid-column: 1 / -1;
-  min-height: 18rem;
-}
-
-.card--wide::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-position: right -1px top -1px;
-  background-size: 2rem 2rem;
-  -webkit-mask-image: radial-gradient(ellipse 55% 100% at 100% 0%, #000, transparent 75%);
-  mask-image: radial-gradient(ellipse 55% 100% at 100% 0%, #000, transparent 75%);
-  pointer-events: none;
 }
 
 @media (min-width: 640px) {
   .card--wide {
-    padding: 2.5rem;
+    padding: 1.75rem 2rem;
   }
 
   .card--wide .card-title {
-    max-width: 38rem;
-    margin-top: 1.5rem;
-    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-    font-weight: 350;
+    max-width: 36rem;
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
     line-height: 1.2;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
   .card--wide .card-summary {
     max-width: 40rem;
-    margin-top: 1rem;
-    font-size: 1.0625rem;
+    font-size: 1.05rem;
     -webkit-line-clamp: 4;
     line-clamp: 4;
   }
@@ -612,50 +479,33 @@ a {
  * A post.
  *
  * The heading and the text share a frame, so the title lines up with the text
- * under it: one reading column, or on a wide screen with a table of contents,
- * that column and the contents beside it.
+ * under it: one reading column of about 70 characters, or on a wide screen
+ * with a table of contents, that column and the contents beside it.
  * ------------------------------------------------------------------------- */
 
 .post-frame {
-  max-width: calc(44rem + 2 * var(--gutter));
+  max-width: 42rem;
 }
 
 .post-hero {
-  padding-top: calc(var(--header-h) + 2.5rem);
+  padding-top: clamp(0.5rem, 4vw, 2rem);
 }
 
 .post-hero-inner {
-  padding-bottom: 2.5rem;
-  border-bottom: 1px solid var(--line);
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
 }
 
-.breadcrumb {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-height: 2rem;
-  color: var(--muted);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: color 0.15s;
-}
-
-.breadcrumb:hover {
-  color: var(--text);
-}
-
-.breadcrumb .icon {
-  width: 0.875rem;
-  height: 0.875rem;
+.post-hero .back {
+  margin-bottom: 1.25rem;
 }
 
 .post-title {
-  max-width: 46rem;
-  margin: 1.5rem 0 2rem;
-  font-size: 2.25rem;
-  font-weight: 350;
-  line-height: 1.15;
+  max-width: 42rem;
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.75rem, 5vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
@@ -663,36 +513,29 @@ a {
 .post-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem 1.5rem;
+  gap: 0.25rem 0.5rem;
   margin: 0;
-}
-
-.post-meta div + div {
-  padding-left: 1.5rem;
-  border-left: 1px solid var(--line);
-}
-
-.post-meta dt {
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 0.9rem;
 }
 
-.post-meta dd {
-  margin: 0.25rem 0 0;
-  font-size: 0.9375rem;
+.post-meta > * + *::before {
+  content: '·';
+  margin-right: 0.5rem;
 }
 
 .post-layout {
-  padding-top: 2.5rem;
-  padding-bottom: 5rem;
+  padding-top: 2rem;
+  padding-bottom: 3.5rem;
 }
 
-/* The table of contents: a folding box above the text on a narrow screen, and
-   a list that stays in view beside it on a wide one. */
+/* The table of contents: a folding card above the text on a narrow screen,
+   and a list that stays in view beside it on a wide one. */
 .toc-box {
-  margin-bottom: 2.5rem;
-  border: 1px solid var(--line);
-  background: var(--glass);
+  margin-bottom: 2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .toc-box summary {
@@ -702,10 +545,8 @@ a {
   gap: 0.75rem;
   min-height: 2.75rem;
   padding: 0.5rem 1rem;
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   list-style: none;
   cursor: pointer;
 }
@@ -737,9 +578,9 @@ a {
 
 .toc-box a {
   display: block;
-  padding: 0.5rem 0;
+  padding: 0.4rem 0;
   color: var(--muted);
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
   line-height: 1.35;
 }
 
@@ -748,7 +589,7 @@ a {
 }
 
 .toc-box a:hover {
-  color: var(--text);
+  color: var(--accent);
 }
 
 .post-aside {
@@ -756,30 +597,20 @@ a {
 }
 
 .toc-title {
-  margin: 0 0 1rem;
-  border-bottom: 1px solid var(--line);
-}
-
-.toc-title span {
-  display: inline-block;
-  margin-bottom: -1px;
-  padding-block: 0.375rem;
-  border-bottom: 2px solid var(--accent);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .toc nav {
-  max-height: calc(100vh - var(--header-h) - 6rem);
+  max-height: calc(100vh - 6rem);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
 }
 
 .toc nav > ul {
-  border-left: 2px solid var(--line);
+  border-left: 2px solid var(--border);
 }
 
 .toc a {
@@ -788,7 +619,7 @@ a {
   padding: 0.3rem 0 0.3rem 0.875rem;
   border-left: 2px solid transparent;
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.35;
   transition:
     color 0.15s,
@@ -799,47 +630,26 @@ a {
   padding-left: 1.5rem;
 }
 
-.toc a:hover,
-.toc a[aria-current] {
+.toc a:hover {
   color: var(--text);
 }
 
 .toc a[aria-current] {
   border-left-color: var(--accent);
+  color: var(--accent);
 }
 
-@media (min-width: 768px) {
-  .post-hero {
-    padding-top: calc(var(--header-h) + 4rem);
-  }
-
-  .post-hero-inner {
-    padding-bottom: 3rem;
-  }
-
-  .post-title {
-    margin: 2rem 0 2.5rem;
-    font-size: 3rem;
-  }
-
-  .post-layout {
-    padding-top: 3rem;
-  }
-}
-
+/* The text column and the contents beside it fill the same width as the
+   header and the footer. */
 @media (min-width: 1024px) {
-  .post-title {
-    font-size: 3.5rem;
-  }
-
   .has-toc .post-frame {
-    max-width: calc(62rem + 2 * var(--gutter));
+    max-width: 56rem;
   }
 
   .has-toc .post-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 15rem;
-    column-gap: 3.5rem;
+    grid-template-columns: minmax(0, 1fr) 12rem;
+    column-gap: 2.5rem;
     align-items: start;
   }
 
@@ -849,14 +659,46 @@ a {
 
   .post-aside {
     position: sticky;
-    top: calc(var(--header-h) + 1rem);
+    top: 1.5rem;
     display: block;
   }
 }
 
-/* "More posts" under a post. */
+/* "More posts" under a post, set off by a line like the sections of the
+   landing page. */
 .more {
-  padding-bottom: 5rem;
+  padding-bottom: 1rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 4vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.section-head a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.section-head a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 /* ---------------------------------------------------------------------------
@@ -866,7 +708,7 @@ a {
 .prose {
   color: var(--prose);
   font-size: 1.0625rem;
-  line-height: 1.75;
+  line-height: 1.7;
   overflow-wrap: break-word;
 }
 
@@ -886,40 +728,36 @@ a {
 .prose h3,
 .prose h4 {
   color: var(--text);
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.3;
   letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
 .prose h2 {
-  margin: 3.25rem 0 1rem;
-  font-size: 1.625rem;
-  line-height: 1.3;
+  margin: 2.75rem 0 0.75rem;
+  font-size: 1.45rem;
 }
 
 .prose h3 {
-  margin: 2.5rem 0 0.875rem;
-  font-size: 1.25rem;
-  line-height: 1.4;
+  margin: 2.25rem 0 0.75rem;
+  font-size: 1.2rem;
 }
 
 .prose h4 {
-  margin: 2rem 0 0.75rem;
-  font-size: 1.0625rem;
-  line-height: 1.5;
+  margin: 2rem 0 0.5rem;
+  font-size: 1.05rem;
 }
 
 .prose a {
   color: var(--accent);
-  font-weight: 600;
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  transition: color 0.15s;
+  text-underline-offset: 0.15em;
 }
 
 .prose a:hover {
-  color: var(--text);
+  text-decoration-thickness: 2px;
 }
 
 .prose strong {
@@ -929,22 +767,21 @@ a {
 
 .prose ul,
 .prose ol {
-  margin: 1.25rem 0;
+  margin: 0 0 1.25rem;
   padding-left: 1.5rem;
 }
 
-.prose li {
-  margin: 0.5rem 0;
-  padding-left: 0.375rem;
+.prose li + li {
+  margin-top: 0.35rem;
 }
 
 .prose li::marker {
-  color: var(--muted);
+  color: var(--accent);
 }
 
 .prose li > ul,
 .prose li > ol {
-  margin: 0.5rem 0;
+  margin: 0.35rem 0 0;
 }
 
 .prose li > p {
@@ -953,8 +790,10 @@ a {
 
 .prose blockquote {
   margin: 1.75rem 0;
-  padding-left: 1.25rem;
-  border-left: 2px solid var(--accent);
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--accent-wash);
   color: var(--text);
 }
 
@@ -966,12 +805,13 @@ a {
   display: block;
   max-width: 100%;
   height: auto;
-  margin: 2.5rem auto;
-  border: 1px solid var(--line);
+  margin: 2rem auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 
 .prose figure {
-  margin: 2.5rem 0;
+  margin: 2rem 0;
 }
 
 .prose figure img {
@@ -981,25 +821,25 @@ a {
 .prose figcaption {
   margin-top: 0.75rem;
   color: var(--muted);
-  font-size: 0.8125rem;
-  font-style: italic;
+  font-size: 0.85rem;
   line-height: 1.45;
   text-align: center;
 }
 
 .prose hr {
-  margin: 3rem 0;
+  margin: 2.5rem 0;
   border: 0;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border);
 }
 
 .prose code {
-  padding: 0.125em 0.375em;
-  border: 1px solid var(--line);
-  background: var(--accent-wash);
-  color: var(--accent);
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  color: var(--text);
   font-family: var(--font-mono);
-  font-size: 0.85em;
+  font-size: 0.875em;
   font-weight: 400;
 }
 
@@ -1014,9 +854,10 @@ a {
   padding: 1rem 1.125rem;
   overflow-x: auto;
   border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
   background: var(--code-bg);
   color: var(--code-text);
-  font-size: 0.8125rem;
+  font-size: 0.85rem;
   line-height: 1.6;
   tab-size: 2;
 }
@@ -1024,6 +865,7 @@ a {
 .prose pre code {
   padding: 0;
   border: 0;
+  border-radius: 0;
   background: none;
   color: inherit;
   font-size: inherit;
@@ -1033,7 +875,9 @@ a {
    language and a copy button over the code. */
 .code {
   margin: 1.75rem 0;
+  overflow: hidden;
   border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
   background: var(--code-bg);
 }
 
@@ -1053,6 +897,7 @@ a {
 .code-copy {
   padding: 0.25rem 0.625rem;
   border: 1px solid var(--code-border);
+  border-radius: var(--radius-xs);
   background: none;
   color: var(--code-text);
   font: inherit;
@@ -1079,6 +924,7 @@ a {
 .prose .code pre {
   margin: 0;
   border: 0;
+  border-radius: 0;
   background: none;
 }
 
@@ -1088,22 +934,22 @@ a {
   margin: 1.75rem 0;
   overflow-x: auto;
   border-collapse: collapse;
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
   line-height: 1.5;
 }
 
 .prose th,
 .prose td {
   padding: 0.625rem 1rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   text-align: left;
   vertical-align: top;
 }
 
 .prose th {
-  background: var(--glass);
+  background: var(--surface);
   color: var(--text);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .prose sup {
@@ -1130,116 +976,86 @@ a {
  * ------------------------------------------------------------------------- */
 
 .missing {
-  padding-bottom: 6rem;
-  text-align: center;
-}
-
-.text-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.text-link .icon {
-  width: 1rem;
-  height: 1rem;
-}
-
-.text-link:hover {
-  color: var(--text);
+  padding-bottom: 4rem;
 }
 
 /* ---------------------------------------------------------------------------
- * The footer.
+ * The footer: one line, as on the landing page, with the way back to it.
  * ------------------------------------------------------------------------- */
 
 .site-footer {
-  border-top: 1px solid var(--line);
+  margin-top: 2rem;
 }
 
 .site-footer-inner {
   display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  padding-top: 3.5rem;
-}
-
-.footer-brand p {
-  max-width: 22rem;
-  margin: 1rem 0 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 2.5rem;
+  border-top: 1px solid var(--border);
   color: var(--muted);
-  font-size: 0.875rem;
-  line-height: 1.6;
+  font-size: 0.85rem;
 }
 
-.footer-cols {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 10rem));
-  gap: 2rem;
-}
-
-.footer-heading {
+.site-footer-inner p {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
-.footer-links {
-  display: grid;
-  gap: 0.25rem;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.875rem;
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
 }
 
-.footer-links a {
+.footer-nav a {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.25rem;
   min-height: 2rem;
-  color: var(--muted);
   transition: color 0.15s;
 }
 
-.footer-links a:hover {
-  color: var(--text);
+.footer-nav a:hover {
+  color: var(--accent);
 }
 
-.site-footer-note {
-  padding-top: 2.5rem;
-  padding-bottom: 3rem;
-  color: var(--muted);
-  font-size: 0.75rem;
+/* The landing page's address, in the monospace its cards use for theirs. */
+.footer-nav .host {
+  color: var(--accent);
+  font-family: var(--font-mono);
 }
 
-.site-footer-note p {
-  margin: 0;
-}
-
-@media (min-width: 640px) {
-  .site-footer-inner {
-    flex-direction: row;
-    justify-content: space-between;
-  }
+.footer-nav .host:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 /* Bigger targets for a finger than for a mouse. */
 @media (pointer: coarse) {
   .list-bar a,
-  .breadcrumb,
-  .footer-links a {
+  .section-head a,
+  .back,
+  .footer-nav a {
     min-height: 2.75rem;
   }
 
   .code-copy {
     padding-block: 0.625rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card-path .icon {
+    transition: none;
+  }
+
+  .card:hover,
+  .card:has(.card-title a:focus-visible),
+  .card:hover .card-path .icon {
+    transform: none;
   }
 }

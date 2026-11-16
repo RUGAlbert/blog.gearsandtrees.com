@@ -41,19 +41,20 @@
   }
 
   // The current section is the last heading that has scrolled past a line
-  // just below the header. Before the first heading, the first one counts.
+  // near the top of the window, below where a link to a heading leaves it
+  // (scroll-padding-top in main.css). Before the first heading, the first one
+  // counts.
   var toc = document.querySelector('[data-toc]');
   if (toc) {
     var links = Array.prototype.slice.call(toc.querySelectorAll('a[href^="#"]'));
     var headings = links.map(function (link) {
       return document.getElementById(decodeURIComponent(link.hash.slice(1)));
     });
-    var header = document.querySelector('.site-header');
+    var line = 80;
     var queued = false;
 
     var update = function () {
       queued = false;
-      var line = header.offsetHeight + 40;
       var current = 0;
       headings.forEach(function (heading, i) {
         if (heading && heading.getBoundingClientRect().top < line) {

@@ -4,7 +4,9 @@
        wide  true for a card across the whole grid, with a larger title
 
        The title is an <h3>, under the <h2> each list of posts starts with. The
-       whole card is the link: the title's link is stretched over it in CSS. */ -}}
+       whole card is the link: the title's link is stretched over it in CSS.
+       At the bottom is the post's address, where the landing page's project
+       cards show the project's. */ -}}
 {{- $page := .page -}}
 <article class="card{{ if .wide }} card--wide{{ end }}">
   <p class="card-meta">
@@ -15,5 +17,5 @@
   {{- with $page.Summary }}
   <p class="card-summary">{{ . | plainify }}</p>
   {{- end }}
-  <span class="card-more" aria-hidden="true">Read post {{ partial "icon.html" "arrow-right" }}</span>
+  <span class="card-path" aria-hidden="true">{{ $page.RelPermalink }} {{ partial "icon.html" "arrow-right" }}</span>
 </article>

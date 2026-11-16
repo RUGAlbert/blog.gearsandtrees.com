@@ -34,54 +34,41 @@
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <div class="backdrop" aria-hidden="true"></div>
 
-  <header class="site-header">
-    <div class="site-header-bg" aria-hidden="true"></div>
-    <div class="container site-header-inner">
-      <a class="wordmark" href="{{ site.Home.RelPermalink }}">Gears &amp; Trees <span class="wordmark-sub">Blog</span></a>
-      <nav class="site-nav" aria-label="Site">
-        <a class="nav-link" href="{{ site.Params.mainSite }}">Projects {{ partial "icon.html" "arrow-up-right" }}</a>
-        {{- with site.Home.OutputFormats.Get "rss" }}
-        <a class="nav-link" href="{{ .RelPermalink }}" aria-label="RSS feed">{{ partial "icon.html" "rss" }}<span class="nav-label">RSS</span></a>
-        {{- end }}
-      </nav>
-    </div>
+  <header class="container site-header">
+    {{- /* The landing page's mark, copied from server/landing/public/logos/.
+           It is decorative: the name beside it says the same. Resized at
+           build time to twice the size it is shown at, for sharp screens. */}}
+    <a class="brand" href="{{ site.Home.RelPermalink }}">
+      {{- with (resources.Get "images/gearsandtrees-mark.png").Resize "x80 png" }}
+      <img class="brand-mark" src="{{ .RelPermalink }}" width="{{ div .Width 2 }}" height="{{ div .Height 2 }}" alt="">
+      {{- end }}
+      Gears &amp; Trees <span class="tag">blog</span>
+    </a>
+    <nav class="site-nav" aria-label="Site">
+      <a class="nav-link" href="{{ site.Params.mainSite }}">Projects {{ partial "icon.html" "arrow-up-right" }}</a>
+      {{- with site.Home.OutputFormats.Get "rss" }}
+      <a class="nav-link" href="{{ .RelPermalink }}" aria-label="RSS feed">{{ partial "icon.html" "rss" }}<span class="nav-label">RSS</span></a>
+      {{- end }}
+    </nav>
   </header>
 
   <main id="main">
     {{- block "main" . }}{{ end }}
   </main>
 
-  <footer class="site-footer">
-    <div class="container site-footer-inner">
-      <div class="footer-brand">
-        <a class="wordmark" href="{{ site.Home.RelPermalink }}">Gears &amp; Trees <span class="wordmark-sub">Blog</span></a>
-        {{- with site.Home.Description }}
-        <p>{{ . }}</p>
+  <footer class="container site-footer">
+    <div class="site-footer-inner">
+      {{- /* The year of the build, not of the visit. Every post is a new
+             build, so it is never more than a year behind. */}}
+      <p>&copy; {{ now.Year }} Albert Dijkstra</p>
+      <nav class="footer-nav" aria-label="Footer">
+        {{- with site.Home.OutputFormats.Get "rss" }}
+        <a href="{{ .RelPermalink }}">RSS feed</a>
         {{- end }}
-      </div>
-      <div class="footer-cols">
-        <nav aria-labelledby="footer-blog">
-          <h2 class="footer-heading" id="footer-blog">Blog</h2>
-          <ul class="footer-links">
-            <li><a href="{{ site.Home.RelPermalink }}">All posts</a></li>
-            {{- with site.Home.OutputFormats.Get "rss" }}
-            <li><a href="{{ .RelPermalink }}">RSS feed</a></li>
-            {{- end }}
-          </ul>
-        </nav>
-        <nav aria-labelledby="footer-site">
-          <h2 class="footer-heading" id="footer-site">Gears &amp; Trees</h2>
-          <ul class="footer-links">
-            <li><a href="{{ site.Params.mainSite }}">Projects {{ partial "icon.html" "arrow-up-right" }}</a></li>
-          </ul>
-        </nav>
-      </div>
+        <a class="host" href="{{ site.Params.mainSite }}">{{ (urls.Parse site.Params.mainSite).Host }}</a>
+      </nav>
     </div>
-    {{- /* The year of the build, not of the visit. Every post is a new build,
-           so it is never more than a year behind. */}}
-    <div class="container site-footer-note"><p>&copy; {{ now.Year }} Albert Dijkstra</p></div>
   </footer>
 </body>
 </html>
