@@ -1,0 +1,12 @@
+{{- /* GitHub Pages serves this for any address that has no page. */ -}}
+{{ define "main" }}
+  <a class="back" href="{{ site.Home.RelPermalink }}">&larr; All posts</a>
+
+  <header class="post-header">
+    <h1>Page not found</h1>
+  </header>
+  <p class="missing">
+    There is no post at this address. The full list is on the
+    <a href="{{ site.Home.RelPermalink }}">blog</a>.
+  </p>
+{{ end }}

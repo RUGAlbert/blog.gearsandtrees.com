@@ -1,0 +1,15 @@
+{{- /* One post. */ -}}
+{{ define "main" }}
+  <a class="back" href="{{ site.Home.RelPermalink }}">&larr; All posts</a>
+
+  <article>
+    <header class="post-header">
+      <h1>{{ .Title }}</h1>
+      {{ partial "date.html" . }}
+    </header>
+
+    <div class="prose">
+      {{ .Content }}
+    </div>
+  </article>
+{{ end }}

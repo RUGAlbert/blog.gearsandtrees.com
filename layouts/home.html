@@ -1,0 +1,12 @@
+{{- /* The front page: every post, newest first. The title and the line under
+       it come from content/_index.md. */ -}}
+{{ define "main" }}
+  <a class="back" href="{{ site.Params.mainSite }}">&larr; Gears &amp; Trees</a>
+
+  <header class="intro">
+    <h1>{{ .Title }}</h1>
+    {{ .Content }}
+  </header>
+
+  {{ partial "post-list.html" (where site.RegularPages "Section" "posts") }}
+{{ end }}

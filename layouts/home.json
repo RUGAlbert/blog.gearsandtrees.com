@@ -1,0 +1,18 @@
+{{- /*
+  Every post, newest first, as /index.json. The landing page at
+  gearsandtrees.com fetches this to list the latest posts; GitHub Pages allows
+  that from any site, so it needs no setup on either side.
+
+  The fields are what the landing page shows. Rename one and the landing page
+  has to change with it.
+*/ -}}
+{{- $posts := slice -}}
+{{- range where site.RegularPages "Section" "posts" -}}
+  {{- $posts = $posts | append (dict
+    "title" .Title
+    "date" (.Date.Format "2006-01-02")
+    "summary" (.Summary | plainify | htmlUnescape)
+    "url" .Permalink
+  ) -}}
+{{- end -}}
+{{- dict "posts" $posts | jsonify -}}

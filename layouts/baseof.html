@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="{{ site.Language.Locale }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ .Title }} · {{ site.Title }}</title>
+  {{- with or .Description .Summary }}
+  <meta name="description" content="{{ . | plainify | htmlUnescape }}">
+  {{- end }}
+  <link rel="canonical" href="{{ .Permalink }}">
+  {{- /* The one feed, for the whole blog, offered on every page. */}}
+  {{- with site.Home.OutputFormats.Get "rss" }}
+  <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}">
+  {{- end }}
+  {{- /* Hugo's built-in Open Graph tags: the title and summary that chat apps
+         and social sites show when a post is linked. */}}
+  {{- partial "opengraph.html" . }}
+  <link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">
+  <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
+  <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16181a" media="(prefers-color-scheme: dark)">
+  {{- /* Fingerprinting puts a hash of the contents in the file name, so a
+         changed stylesheet is a new URL and no browser keeps the old one. */}}
+  {{- with resources.Get "css/main.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+  {{- end }}
+</head>
+<body>
+  <main class="page">
+    {{- block "main" . }}{{ end }}
+
+    {{- /* The year of the build, not of the visit. Every post is a new build,
+           so it is never more than a year behind. */}}
+    <footer class="footer"><p>&copy; {{ now.Year }} Albert Dijkstra</p></footer>
+  </main>
+</body>
+</html>

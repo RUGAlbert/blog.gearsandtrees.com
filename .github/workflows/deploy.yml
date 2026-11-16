@@ -1,0 +1,82 @@
+# Builds the site with Hugo and publishes it to GitHub Pages, on every push to
+# main. A post is online about a minute after it is pushed.
+#
+# Pages has to be told once to take its site from a workflow rather than from a
+# branch: Settings → Pages → Build and deployment → Source: GitHub Actions. See
+# README.md.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # A button in the Actions tab, to redeploy without a commit. A post dated in
+  # the future stays hidden until the first build after that date, and this is
+  # one way to make that build happen.
+  workflow_dispatch:
+
+# What the deploy needs, and nothing more: read the repository, write to Pages,
+# and prove to Pages that the upload came from this workflow.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. A newer push waits for the running one rather than
+# cancelling it, so a deploy is never cut off halfway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Pinned, because a new Hugo release can change how templates behave.
+      # Keep it at the version used locally (`hugo version`), so the site built
+      # here is the one that was previewed.
+      HUGO_VERSION: 0.169.0
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Read the Pages settings
+        id: pages
+        uses: actions/configure-pages@v6
+
+      # The standard edition is enough: the extended one adds Sass and WebP
+      # encoding, which this site does not use. The checksum is checked against
+      # the list Hugo publishes with the release, so a corrupted or swapped
+      # download fails the build instead of being published.
+      - name: Install Hugo
+        run: |
+          base="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}"
+          archive="hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
+          sums="hugo_${HUGO_VERSION}_checksums.txt"
+          curl -fsSLO "${base}/${archive}"
+          curl -fsSLO "${base}/${sums}"
+          grep " ${archive}\$" "${sums}" | sha256sum --check --strict -
+          mkdir -p "${HOME}/.local/hugo"
+          tar -xzf "${archive}" -C "${HOME}/.local/hugo"
+          echo "${HOME}/.local/hugo" >> "${GITHUB_PATH}"
+
+      # The address comes from Pages rather than hugo.toml, so links are right
+      # both before the custom domain is set (<user>.github.io/blog/) and after.
+      - name: Build
+        run: hugo build --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

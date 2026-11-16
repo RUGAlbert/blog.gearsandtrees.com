@@ -1,0 +1,6 @@
+# Hugo's output. The deploy workflow builds it fresh on every push.
+/public/
+
+# Hugo's cache of processed assets, and the lock it holds while building.
+/resources/_gen/
+.hugo_build.lock

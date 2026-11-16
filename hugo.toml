@@ -1,0 +1,43 @@
+# The blog at blog.gearsandtrees.com, built by Hugo and served by GitHub Pages.
+# See README.md for writing a post and for how it gets online.
+
+# Used by `hugo server` and local builds. The deploy workflow overrides it with
+# whatever address GitHub Pages reports, so the site also works on
+# <user>.github.io/blog before the custom domain is set up.
+baseURL = 'https://blog.gearsandtrees.com/'
+locale = 'en'
+title = 'Gears & Trees'
+
+# The blog is one list of posts. Without this, Hugo also writes a page per
+# section (/posts/) and per tag and category, which nothing links to.
+disableKinds = ['section', 'taxonomy', 'term']
+
+# A post's address is its file name: content/posts/my-post.md is at /my-post/.
+# The `posts/` folder keeps the posts apart from any other page added later; it
+# does not need to be in the address on a subdomain that is only a blog. Leave a
+# file's name alone once the post is out, or every link to it breaks.
+[permalinks.page]
+posts = '/:contentbasename/'
+
+# The home page is also an RSS feed (/index.xml) and a JSON list of the posts
+# (/index.json) that the landing page at gearsandtrees.com reads its "latest
+# posts" from.
+[outputs]
+home = ['html', 'rss', 'json']
+
+[params]
+# Where the back link at the top of the blog's front page goes.
+mainSite = 'https://gearsandtrees.com/'
+
+# Code blocks come out as plain <pre><code>, styled by the site's own CSS.
+# Hugo's highlighter writes its colours inline, in a single palette that cannot
+# follow the reader's dark mode, so it is off until the CSS for both is added.
+[markup.highlight]
+codeFences = false
+
+# The templates use the layout system Hugo introduced in 0.146 (layouts/home.html
+# rather than layouts/_default/...), and `locale` above is from 0.158. An older
+# Hugo finds no templates and builds blank pages without saying why; this makes
+# it say so.
+[module.hugoVersion]
+min = '0.158.0'
